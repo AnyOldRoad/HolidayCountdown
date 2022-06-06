@@ -4,34 +4,14 @@
         <p>There are...</p>
         <div class="daysleft"></div>
         <p>... days until the next bank holiday, on <b class="nextbhdate"></b></p>
+        <p>Better keep at it!</p>
     </body>
 
 </html>
 
 <script>
 
-    const endPoint = 'https://www.gov.uk/bank-holidays.json';
-    fetch(endPoint)
-        .then((response)=> response.json())
-        .then((data)=> handleResponse(data));
-
     var strToday = new Date(Date.now());
-
-    function handleResponse(data){
-
-        let bankhols = data;
-        let englandandWales = bankhols["england-and-wales"].events;
-
-        let html = getNextBankHol(englandandWales);
-        let nextbhdate = new Date(html.date);
-
-        let daysleftcount = dateDiff(strToday, nextbhdate);
-        
-        let nextbh = document.querySelector('.nextbhdate');
-        let daysleft = document.querySelector('.daysleft');
-        nextbh.innerHTML = formatDate(nextbhdate);
-        daysleft.innerHTML = daysleftcount;
-    }
 
     function formatDate(date){
         return date.toLocaleDateString("en-us", { weekday:"long", year:"numeric", month:"long", day:"numeric"});
@@ -49,7 +29,6 @@
     }
 
     function getNextBankHol(data){
-
         let filteredList = new Array();
 
         for(var event of data){
@@ -58,12 +37,39 @@
             if(eventDate > Date.now()){
                 filteredList.push(event);
             }
-
         }
 
         return filteredList[0];
     }
 
+    function handleResponse(data){
+        let bankhols = data;
+        let englandandWales = bankhols["england-and-wales"].events;
 
+        let html = getNextBankHol(englandandWales);
+        let nextbhdate = new Date(html.date);
+
+        let daysleftcount = dateDiff(strToday, nextbhdate);
+
+        let nextbh = document.querySelector('.nextbhdate');
+        let daysleft = document.querySelector('.daysleft');
+        nextbh.innerHTML = formatDate(nextbhdate);
+        daysleft.innerHTML = daysleftcount;
+    }
+
+    const endPoint = 'https://www.gov.uk/bank-holidays.json';
+    fetch(endPoint)
+        .then((response)=> response.json())
+        .then((data)=> handleResponse(data));
 
 </script>
+
+<style>
+
+    body {
+        text-align:center;
+    }
+    .daysleft {
+        font-size: 3em;
+    }
+</style>
