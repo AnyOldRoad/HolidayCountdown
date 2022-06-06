@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <p>There are...</p>
+        <div class="daysleft"></div>
+        <p>... days until the next bank holiday, on <b class="nextbhdate"></b></p>
+    </body>
+
+</html>
+
+<script>
+
+    const endPoint = 'https://www.gov.uk/bank-holidays.json';
+    fetch(endPoint)
+        .then((response)=> response.json())
+        .then((data)=> handleResponse(data));
+
+    var strToday = new Date(Date.now());
+
+    function handleResponse(data){
+
+        let bankhols = data;
+        let englandandWales = bankhols["england-and-wales"].events;
+
+        let html = getNextBankHol(englandandWales);
+        let nextbhdate = new Date(html.date);
+
+        let daysleftcount = dateDiff(strToday, nextbhdate);
+        
+        let nextbh = document.querySelector('.nextbhdate');
+        let daysleft = document.querySelector('.daysleft');
+        nextbh.innerHTML = formatDate(nextbhdate);
+        daysleft.innerHTML = daysleftcount;
+    }
+
+    function formatDate(date){
+        return date.toLocaleDateString("en-us", { weekday:"long", year:"numeric", month:"long", day:"numeric"});
+    }
+
+    function dateDiff(date1, date2){
+        let dt1 = new Date(date1);
+        let dt2 = new Date(date2);
+
+        let difference = dt2-dt1;
+        let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+
+        return TotalDays;
+
+    }
+
+    function getNextBankHol(data){
+
+        let filteredList = new Array();
+
+        for(var event of data){
+            let eventDate = new Date(event.date);
+
+            if(eventDate > Date.now()){
+                filteredList.push(event);
+            }
+
+        }
+
+        return filteredList[0];
+    }
+
+
+
+</script>
